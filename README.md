@@ -24,12 +24,16 @@ I am also currently working on porting this same routine to
 other languages.  C# (.NET) will show up soon, followed by C++, 
 and maybe Go, in the future.
 
-In addition, I need to function-ize the routine so that it can be 
-called as a discrete program in other languages.
+The existing C coded program works two ways:
+
+If you don't supply a value between 0 - 4096, it runs a test loop
+from 0 - 4096 with a test output of values sent to the registers.
+
+If you supply a command line argument, it sets the MCP4725 to that level.
 
 Example: MCP4725set 2048
 
-Also, the actual voltage output is determined by VCC of the board.  
+The actual voltage output is determined by VCC of the board.  
 For the raspberry pi, that is 3.3VDC.  I'll have to work on something 
 to make it do an industry standard of 0-5VDC or 0-10VDC.
 

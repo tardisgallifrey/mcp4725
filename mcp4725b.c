@@ -22,10 +22,11 @@
 int main(int argc, char *argv[])
 {
 
-	int fd;				//file descriptor
+	int fd;						//file descriptor
 	int mcp4725_addr = 0x60;	//MCP4725 defaults to 0x60
-	int16_t val;			//16 bit integer exactly
-	char buffer[15];		//input value for DAC
+	int16_t val;				//16 bit integer exactly
+	int count = 0;				//loop counter
+	char buffer[15];			//input value for DAC
 
 	//Only 3 8-bit buffers needed for MCP4715
 	//1 control byte, 2 data bytes (MSB, LSB)
@@ -65,23 +66,50 @@ int main(int argc, char *argv[])
    	// bits 7-4; Databits D3-D0
    	// bits 3-0 unused
 
-	int count = 0;
-
-	while(count < 4096){
-
-    	val=count;
-    	//write the number (two bytes) to DAC
+	if(argc == 2){
+	
+		if(atoi(argv[1]) > 4096)
+		{
+			val = 4096;
+		}
+		else if(atoi(argv[1]) < 0)
+		{
+			val = 0;
+		}
+		else
+		{
+			val = atoi(argv[1]);
+		}
+		//write the number (two bytes) to DAC
 		writeBuf[1] = val >> 4; //MSB shifted right 4 places
 		writeBuf[2] = val << 4; //LSB shifted left 4 places
-		
 		//Write to MCP4725 device
 		if (write(fd, writeBuf, 3) != 3) {
 			perror("Write to register failed.");
 			exit(1);
 		}
-		count += 100;
-		printf("%d   %d   %d\n", val,writeBuf[1],writeBuf[2]);
-		sleep(2);
-	 }
-	 return 0;
+
+
+	}
+	else
+	{
+		while(count < 4096){
+
+    		val=count;
+    		//write the number (two bytes) to DAC
+			writeBuf[1] = val >> 4; //MSB shifted right 4 places
+			writeBuf[2] = val << 4; //LSB shifted left 4 places
+		
+			//Write to MCP4725 device
+			if (write(fd, writeBuf, 3) != 3) {
+				perror("Write to register failed.");
+				exit(1);
+			}
+
+			count += 100;
+			printf("%d   %d   %d\n", val,writeBuf[1],writeBuf[2]);
+			sleep(2);
+	 	}
+	}	 
+	return 0;
 }
