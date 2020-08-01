@@ -31,6 +31,22 @@ namespace MCP4725
             writeBuf[1] = 0;        //MSB
             writeBuf[2] = 0;        //LSB
 
+            //try to read from address
+            //If it fails, first check
+            //if you ran as SUDO
+            try
+            {
+                mcp4725.Read(writeBuf);
+            }
+            catch(System.IO.IOException e)
+            {
+                Console.WriteLine("DID YOU RUN THIS AS SUDO!");
+                Console.WriteLine("Possible I2C bus error");
+                Console.WriteLine("Check wiring of SDA and SCL");
+                System.Environment.Exit(0);
+
+            }
+
             int count = 0;
             while(count < 4096){
                 val = count;
@@ -42,7 +58,25 @@ namespace MCP4725
                 writeBuf[1] = (byte)(val >> 4);
                 writeBuf[2] = (byte)(val << 4);
 
-                mcp4725.Write(writeBuf);
+
+                //try to write to the registers
+                //if it fails, print message
+                try
+                {
+
+                    mcp4725.Write(writeBuf);
+
+                }
+                catch(System.IO.IOException e)
+                {
+                    Console.WriteLine("Error occurred during last write.");
+                    Console.WriteLine("Possible problem with I2C bus or MCP4725 board");
+                    Console.WriteLine("Exiting.  Sorry.");
+                    System.Environment.Exit(0);
+                
+                }
+
+
                 Console.WriteLine($"{val}     {writeBuf[1]}     {writeBuf[2]}");
                 count += 100;
                 Thread.Sleep(2000);
