@@ -12,6 +12,7 @@ namespace MCP4725
         {
 
             int val;
+            int count = 0;
             byte[] writeBuf = new byte[3];
 
             // set I2C bus ID: 1
@@ -30,25 +31,38 @@ namespace MCP4725
             //Just setting up, using later
             writeBuf[1] = 0;        //MSB
             writeBuf[2] = 0;        //LSB
-
-            int count = 0;
             
 
-                    while(count < 4096){
-                        val = count;
+            while(count < 4096){
+                val = count;
 
-                        //val is an int (16bits)
-                        //writeBuf is a byte (8bits)
-                        //this method lops off the extra bits
-                        //so that an overflow error isn't produced
-                        writeBuf[1] = (byte)(val >> 4);
-                        writeBuf[2] = (byte)(val << 4);
+                //val is an int (16bits)
+                //writeBuf is a byte (8bits)
+                //this method lops off the extra bits
+                //so that an overflow error isn't produced
+                writeBuf[1] = (byte)(val >> 4);
+                writeBuf[2] = (byte)(val << 4);
 
-                        mcp4725.Write(writeBuf);
-                        Console.WriteLine($"{val}     {writeBuf[1]}     {writeBuf[2]}");
-                        count += 100;
-                        Thread.Sleep(2000);
-                    }
+                try
+                {
+                    mcp4725.Write(writeBuf);
+
+                }
+                catch
+                {
+
+                    Console.WriteLine("Error on last Read");
+                    Console.WriteLine("Check your wiring");
+                    Console.WriteLine("Problem with I2C bus possible");
+                    Console.WriteLine("DID YOU RUN THIS AS 'SUDO'?");
+                    System.Environment.Exit(0);
+
+                }
+
+                Console.WriteLine($"{val}     {writeBuf[1]}     {writeBuf[2]}");
+                count += 100;
+                Thread.Sleep(2000);
+            }
         
         }
     }
